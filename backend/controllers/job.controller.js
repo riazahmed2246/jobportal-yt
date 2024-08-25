@@ -1,38 +1,98 @@
 import { Job } from "../models/job.model.js";
 
-// admin post krega job
+// // admin post krega job
+// export const postJob = async (req, res) => {
+//     try {
+//         const { title, description, requirements, salary, location, jobType, experience, position, companyId } = req.body;
+//         const userId = req.id;
+
+//         if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !companyId) {
+//             return res.status(400).json({
+//                 message: "Somethin is missing.",
+//                 success: false
+//             })
+//         };
+//         const job = await Job.create({
+//             title,
+//             description,
+//             requirements: requirements.split(","),
+//             salary: Number(salary),
+//             location,
+//             jobType,
+//             experienceLevel: experience,
+//             position,
+//             company: companyId,
+//             created_by: userId
+//         });
+//         return res.status(201).json({
+//             message: "New job created successfully.",
+//             job,
+//             success: true
+//         });
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+
 export const postJob = async (req, res) => {
     try {
         const { title, description, requirements, salary, location, jobType, experience, position, companyId } = req.body;
         const userId = req.id;
 
+        // Debugging output
+        console.log("Request body:", req.body);
+        console.log("User ID:", userId);
+
+        // Check for missing fields
         if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !companyId) {
             return res.status(400).json({
-                message: "Somethin is missing.",
+                message: "Something is missing.",
                 success: false
-            })
-        };
+            });
+        }
+
+        // Convert fields to correct types
+        const salaryNumber = Number(salary);
+        const experienceNumber = Number(experience);
+        const positionNumber = Number(position);
+
+        // Check for invalid number formats
+        if (isNaN(salaryNumber) || isNaN(experienceNumber) || isNaN(positionNumber)) {
+            return res.status(400).json({
+                message: "Invalid number format.",
+                success: false
+            });
+        }
+
+        // Create the job
         const job = await Job.create({
             title,
             description,
             requirements: requirements.split(","),
-            salary: Number(salary),
+            salary: salaryNumber,
             location,
             jobType,
-            experienceLevel: experience,
-            position,
+            experienceLevel: experienceNumber,
+            position: positionNumber,
             company: companyId,
             created_by: userId
         });
+
         return res.status(201).json({
             message: "New job created successfully.",
             job,
             success: true
         });
     } catch (error) {
-        console.log(error);
+        console.log("Error:", error);
+        return res.status(500).json({
+            message: "Internal server error.",
+            success: false
+        });
     }
 }
+
+
 // student k liye
 export const getAllJobs = async (req, res) => {
     try {
